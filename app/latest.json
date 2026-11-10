@@ -1,0 +1,23 @@
+{
+  "version": "0.1.14",
+  "core_min": "0.1.11",
+  "notes": "Herdr 0.1.14",
+  "targets": {
+    "linux-aarch64": {
+      "url": "https://raw.githubusercontent.com/lsjpwr/herdr_releases_for_closed_network/main/app/0.1.14/herdr-app-linux-aarch64.tar.gz",
+      "sha256": "30a431ce95c17356efe8afed50c4eaf8888d83ef45acd9aa911094d51707d007"
+    },
+    "linux-x86_64": {
+      "url": "https://raw.githubusercontent.com/lsjpwr/herdr_releases_for_closed_network/main/app/0.1.14/herdr-app-linux-x86_64.tar.gz",
+      "sha256": "475a383f8f439e3191a86635b5c1286ce4dfd2d9fcdf1e7cbdfdd6c7176f8ff3"
+    },
+    "macos-aarch64": {
+      "url": "https://raw.githubusercontent.com/lsjpwr/herdr_releases_for_closed_network/main/app/0.1.14/herdr-app-macos-aarch64.tar.gz",
+      "sha256": "0da6ca214214389ca39e05fdf6523fd6e4be423a4be7dfd39b677d68a410fa8b"
+    },
+    "windows-x86_64": {
+      "url": "https://raw.githubusercontent.com/lsjpwr/herdr_releases_for_closed_network/main/app/0.1.14/herdr-app-windows-x86_64.tar.gz",
+      "sha256": "c8a9da0e1b7c8ec85e2e131006797ba0fe0fc7793f3ab80e482f7622a5516b01"
+    }
+  }
+}
