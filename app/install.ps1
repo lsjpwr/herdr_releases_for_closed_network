@@ -94,9 +94,13 @@ try {
     if (-not (Test-Path $core) -and -not (Get-Command herdr-core -ErrorAction SilentlyContinue)) {
         try {
             $env:HERDR_RELEASES_URL = $releases
-            Invoke-RestMethod "$releases/core/install.ps1" | Invoke-Expression
+            # curl.exe, as above, not Invoke-RestMethod: a proxy that asks it to
+            # log in (AuthenticationRequired) can still let curl.exe through.
+            curl.exe -fsSL "$releases/core/install.ps1" -o "$tmp\core-install.ps1"
+            if ($LASTEXITCODE) { Fail "cannot reach $releases/core/install.ps1" }
+            [IO.File]::ReadAllText("$tmp\core-install.ps1") | Invoke-Expression
         } catch {
-            Write-Host "herdr-core didn't install; Herdr will offer it when it opens."
+            Write-Host "herdr-core didn't install ($_); Herdr will offer it when it opens."
         }
     }
 
