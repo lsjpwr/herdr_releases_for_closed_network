@@ -1,20 +1,26 @@
-# Mirrors releases.herdr.dev (Windows x64 only) into this folder, for a closed
-# network that reaches GitHub but not herdr.dev. Run it on a PC with internet,
-# with this folder as a clone of a PUBLIC GitHub repo, then commit and push:
+# Mirrors releases.herdr.dev (Windows and Linux, x86_64) into this folder, for
+# networks that reach GitHub but not herdr.dev, or nothing at all. Run it on a
+# PC with internet, with this folder as a clone of a PUBLIC GitHub repo, then
+# commit and push:
 #
 #   .\mirror.ps1 https://raw.githubusercontent.com/OWNER/REPO/main
 #
-# The closed network then installs with:
+# GitHub-only networks then install with:
 #
-#   powershell -c "irm https://raw.githubusercontent.com/OWNER/REPO/main/app/install.ps1 | iex"
+#   Windows: powershell -c "irm https://raw.githubusercontent.com/OWNER/REPO/main/app/install.ps1 | iex"
+#   Linux:   curl -fsSL https://raw.githubusercontent.com/OWNER/REPO/main/app/install.sh | sh
 #
-# Run it again and push to update the mirror; installed apps update from it.
-# ponytail: old versions' folders stay; delete them by hand when the repo grows.
+# Networks with no internet: copy the whole folder over, then run
+# install-offline.ps1 (Windows) or install-offline.sh (Linux) in it.
+#
+# Run it again and push to update the mirror; only the latest version stays.
 param([Parameter(Mandatory)][string]$Base)
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
 $up = "https://releases.herdr.dev"
 $Base = $Base.TrimEnd("/")
+# Add "linux-aarch64" for ARM Linux (about 40MB more per version).
+$targets = "windows-x86_64", "linux-x86_64"
 
 function Fetch($path) {
     $out = Join-Path $PSScriptRoot $path
@@ -32,10 +38,16 @@ function Rewrite($path) {
 foreach ($part in "app", "core") {
     Fetch "$part/latest.json"
     $m = Get-Content -Raw (Join-Path $PSScriptRoot "$part/latest.json") | ConvertFrom-Json
-    $url = $m.targets."windows-x86_64".url
-    if (-not $url.StartsWith("$up/")) { throw "$part/latest.json points outside ${up}: $url" }
-    Fetch $url.Substring($up.Length + 1)
+    # The manifest names nothing older, so older versions' folders go.
+    Get-ChildItem (Join-Path $PSScriptRoot $part) -Directory | Where-Object Name -ne $m.version | Remove-Item -Recurse -Force
+    foreach ($target in $targets) {
+        $url = $m.targets.$target.url
+        if (-not $url.StartsWith("$up/")) { throw "$part/latest.json has no $target build on ${up}: $url" }
+        Fetch $url.Substring($up.Length + 1)
+    }
     Rewrite "$part/latest.json"
+    Fetch "$part/install.sh"
+    Rewrite "$part/install.sh"
     Write-Host "$part $($m.version) mirrored."
 }
 
